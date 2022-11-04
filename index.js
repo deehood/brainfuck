@@ -1,70 +1,49 @@
 function brainLuck(code, inputStr) {
+    const data = Array(5000).fill(0);
+    const brackets = bracketsMap(code);
+
     let ip = 0;
-    const dp = new dataPointer();
+    let address = 0;
 
     let input = [...inputStr].map((char) => char.charCodeAt(0));
     let output = "";
 
-    const brackets = bracketsMap(code);
-
-    dp.data = Array(5000).fill(0);
-
     let exit = false;
 
-    while (ip < code.length && dp.address < 5000 && exit === false) {
+    while (ip < code.length && address < 5000 && exit === false) {
         switch (code[ip]) {
             case ">":
-                dp.incDataPointer();
+                address++;
                 break;
             case "<":
-                dp.decDataPointer();
+                address--;
                 break;
             case "+":
-                dp.incValue();
+                data[address]++;
+                if (data[address] > 255) data[address] = 0;
                 break;
             case "-":
-                dp.decValue();
+                data[address]--;
+                if (data[address] < 0) data[address] = 255;
                 break;
             case "[":
-                if (dp.data[dp.address] === 0) ip = brackets.get(ip);
+                if (data[address] === 0) ip = brackets.get(ip);
                 break;
             case "]":
-                if (dp.data[dp.address] !== 0)
+                if (data[address] !== 0)
                     ip = [...brackets].find(([key, val]) => val === ip)[0];
                 break;
             case ",":
-                dp.data[dp.address] = input[0];
+                data[address] = input[0];
                 input.length > 0 ? input.splice(0, 1) : (exit = true);
                 break;
             case ".":
-                output += String.fromCharCode(dp.data[dp.address]);
+                output += String.fromCharCode(data[address]);
                 break;
         }
         ip++;
     }
     return output;
-}
-
-function dataPointer() {
-    return {
-        data: [],
-        address: 0,
-
-        incDataPointer() {
-            this.address++;
-        },
-        decDataPointer() {
-            this.address--;
-        },
-        incValue() {
-            this.data[this.address]++;
-            if (this.data[this.address] > 255) this.data[this.address] = 0;
-        },
-        decValue() {
-            this.data[this.address]--;
-            if (this.data[this.address] < 0) this.data[this.address] = 255;
-        },
-    };
 }
 
 function bracketsMap(code) {
